@@ -59,11 +59,7 @@ The dataset is provided as a single CSV file. 每行代表一次独立的观测�
 | `AzimuthTheoretical_deg`       | 根据星表数据和测站参数计算的理论方位角 \$A\_{\text{theo},i}\$。                                                                               |
 | `AzimuthError`                 | 回归分析的因变量：\$\Delta A\_i = A\_{\text{obs},i} - A\_{\text{theo},i}\$。此为主要研究量。                                                |
 | `AzimuthErrorUnit`             | `AzimuthError` 的单位 ("arcsec" 或 "degrees")。注意：多数回归分析使用角秒。                                                                  |
-| `CulminationInfo`              | 恒星中天状态的定性描述 (e.g., "Upper Culm., N of Zenith")。用于确定 \$\cos q\_i\$。                                                        |
-| `GroupID`                      | 观测集或方向的标识符 (e.g., `Fig6_Stack_...`, `Fig9_Dir_...`)。有助于复现论文中的特定分析。                                                        |
-| `DataSourceHint`               | 内部提示，将数据行映射到其在论文章节/图表中的用途 (e.g., `Fig6_StackedPoints`, `Fig10_IndividualObs_Clean`, `Fig11_SummedSet_GrossError`)。编码处理阶段。 |
-| `Fig9_Direction_XVal`          | 用于绘制论文图9的特定X轴值 (方向ID 1-6)。其他情况为NaN。                                                                                       |
-| `Boxplot_StarNum_XVal`         | 用于绘制论文图4 (箱线图) 的特定X轴值 (恒星序号 1-40)。其他情况为NaN。                                                                               |
+| `CulminationInfo`              | 恒星中天状态的定性描述 (e.g., "Upper Culm., N of Zenith")。用于确定 \$\cos q\_i\$。                                                        |                                                          |
 
 ### 3.1. 特定数据类型与回归分析说明
 * **直接回归 (例如 Fig. 6, Fig. 10):** 每行对应一次独立的恒星观测。`Term_CosQ_CosDelta_SinZenith` 为 \$X\_i\$，`AzimuthError` 为 \$\Delta A\_i\$。
