@@ -1,3 +1,86 @@
+# README: 我/239 分析
+
+# README: I/239 Analysis
+
+利用多星中天观测的精密天文定向及不同回归模型分析
+
+## 数据集版本
+
+## Dataset Version
+
+1.0 (Corresponds to data used for figures in the JSE 2020 publication)
+
+## 数据集作者/管理者
+
+## Dataset Authors/Curators
+
+宣明¹;
+Ming Xuan¹
+(单位信息参见原始出版物)
+---
+
+## 1. 引言与观测背景
+
+## 1. Introduction and Observational Context
+
+## 2. 数据采集与预处理
+
+## 2. Data Acquisition and Pre-processing
+
+Observations were made across six different horizontal directions from the primary station. 每颗恒星通常连续快速观测6至12次，以削弱短期指向不稳定性并进行内部精度评定。Raw horizontal circle readings (\$H\_R\$) and vertical circle readings (\$V\_R\$) were transformed into observed azimuths (\$A\_{\text{obs}}\$) and zenith angles (\$z\_{\text{obs}}\$).
+
+每次独立照准的方位角误差为 \$\Delta A\_i = A\_{\text{obs},i} - A\_{\text{theo},i}\$。The zenith angle \$z\_i\$ used in the term \$X\_i\$ is the theoretically computed \$z\_{\text{theo},i}\$, as errors in station latitude have a minimal effect on \$z\_i\$ for stars at culmination.
+
+### 2.1. 关键项推导
+
+### 2.1. Derivation of Key Terms
+
+核心项为 \$X\_i = \frac{\cos q\_i \cos \delta\_i}{\sin z\_i}\$。The parallactic angle \$q\_i\$ is determined by the relative positions of the celestial pole \$P\$, the zenith \$Z\$, and the star \$S\_i\$. At upper culmination:
+
+* 对于在天顶以北中天的恒星，\$q\_i = 180^\circ \implies \cos q\_i = -1\$。
+
+中天时的天顶距由 \$z\_i = |\phi - \delta\_i|\$ 给出。The term \$\frac{\cos \delta\_i}{\sin z\_i}\$ is also provided, as it appears in intermediate steps of error propagation models relevant for understanding sensitivity.
+
+## 3. 数据集结构 (`unified_astro_data.csv`)
+
+The dataset is provided as a single CSV file. 每行代表一次独立的观测照准或用于论文中某项回归分析的派生/汇总数据点。
+
+| 列名 (Column)                    | 描述与推导说明 (Description & Derivation Notes)                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `StarID`                       | 观测恒星的唯一标识符 (e.g., `HIP_#####`).                                                                                           |
+| `ObservationID`                | 特定观测/照准或派生数据点的唯一标识符。                                                                                                      |
+| `ObservationTimeUTC`           | 观测时间戳 (UTC).                                                                                                              |
+| `HorizontalAngleObserved_deg`  | 经初始定向校正后的原始水平度盘读数 (仪器)。                                                                                                   |
+| `AzimuthObserved_deg`          | 观测到的恒星天文方位角，由 `HorizontalAngleObserved_deg` 和仪器设置推导。 \$A\_{\text{obs}}\$.                                                 |
+| `ZenithAngle_deg`              | 观测或计算得到的天顶距 \$z\_i\$。多数分析中，此为 \$z\_{\text{theo},i}\$。                                                                     |
+| `Declination_deg`              | 星表中恒星在观测历元的赤纬 \$\delta\_i\$。                                                                                              |
+| `Term_CosDelta_SinZenith`      | 推导项 \$\frac{\cos \delta\_i}{\sin z\_i}\$。                                                                                 |
+| `Term_CosQ_CosDelta_SinZenith` | 回归分析的主要自变量：\$X\_i = \frac{\cos q\_i \cos \delta\_i}{\sin z\_i}\$。                                                         |
+| `AzimuthTheoretical_deg`       | 根据星表数据和测站参数计算的理论方位角 \$A\_{\text{theo},i}\$。                                                                               |
+| `AzimuthError`                 | 回归分析的因变量：\$\Delta A\_i = A\_{\text{obs},i} - A\_{\text{theo},i}\$。此为主要研究量。                                                |
+| `AzimuthErrorUnit`             | `AzimuthError` 的单位 ("arcsec" 或 "degrees")。注意：多数回归分析使用角秒。                                                                  |
+| `CulminationInfo`              | 恒星中天状态的定性描述 (e.g., "Upper Culm., N of Zenith")。用于确定 \$\cos q\_i\$。                                                        |
+| `GroupID`                      | 观测集或方向的标识符 (e.g., `Fig6_Stack_...`, `Fig9_Dir_...`)。有助于复现论文中的特定分析。                                                        |
+| `DataSourceHint`               | 内部提示，将数据行映射到其在论文章节/图表中的用途 (e.g., `Fig6_StackedPoints`, `Fig10_IndividualObs_Clean`, `Fig11_SummedSet_GrossError`)。编码处理阶段。 |
+| `Fig9_Direction_XVal`          | 用于绘制论文图9的特定X轴值 (方向ID 1-6)。其他情况为NaN。                                                                                       |
+| `Boxplot_StarNum_XVal`         | 用于绘制论文图4 (箱线图) 的特定X轴值 (恒星序号 1-40)。其他情况为NaN。                                                                               |
+
+### 3.1. 特定数据类型与回归分析说明
+* **直接回归 (例如 Fig. 6, Fig. 10):** 每行对应一次独立的恒星观测。`Term_CosQ_CosDelta_SinZenith` 为 \$X\_i\$，`AzimuthError` 为 \$\Delta A\_i\$。
+* **求和回归 (例如 Fig. 7, Fig. 11):** 对于涉及南北星数据（或不同中天的两颗北星）求和的分析，项 \$X\_{\text{sum}} = X\_N + X\_S\$ 且 \$\Delta A\_{\text{sum}} = \Delta A\_N + \Delta A\_S\$。
+
+
+## 4. 潜在应用与进一步研究
+
+## 4. Potential Applications and Further Research
+
+该数据集可用于：
+
+* 复现原始出版物中提出的回归分析。
+* 测试替代的稳健回归技术或异常值检测方法。
+* 研究不同恒星数量或观测策略对方位角测定精度的影响。
+
+
 I/239           The Hipparcos and Tycho Catalogues                    (ESA 1997)
 ================================================================================
 The Hipparcos and Tycho Catalogues
